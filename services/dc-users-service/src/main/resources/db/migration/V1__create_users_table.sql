@@ -1,0 +1,8 @@
+CREATE TABLE users
+(
+    id   INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    username VARCHAR NOT NULL UNIQUE,
+    password  VARCHAR NOT NULL,
+    role VARCHAR NOT NULL,
+    digital_coins INTEGER NOT NULL
+);
