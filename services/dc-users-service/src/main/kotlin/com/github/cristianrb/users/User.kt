@@ -6,6 +6,7 @@ package com.github.cristianrb.users
 
 import com.github.cristianrb.util.LocalDateSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.UseSerializers
 import java.time.LocalDate
 
@@ -15,6 +16,8 @@ enum class UserRole {
     ADMIN,
     NORMAL
 }
+
+fun String.toUserRole() = UserRole.valueOf(this)
 
 @Serializable
 data class RegistrationUser(
@@ -37,5 +40,14 @@ data class LoginUser(
 @Serializable
 data class User(
     val username: String,
+    @Transient
+    val password: String? = null,
     val role: UserRole
+)
+
+@Serializable
+data class UserWithToken(
+    val username: String,
+    val role: UserRole,
+    val token: String
 )

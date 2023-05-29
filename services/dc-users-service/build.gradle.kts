@@ -47,6 +47,9 @@ dependencies {
     implementation("org.flywaydb:flyway-core:9.18.0")
     implementation("com.zaxxer:HikariCP:5.0.1")
 
+    implementation("io.arrow-kt:arrow-core:1.2.0-RC")
+    implementation("io.arrow-kt:arrow-fx-coroutines:1.2.0-RC")
+
     implementation("ch.qos.logback:logback-classic:$logback_version")
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")

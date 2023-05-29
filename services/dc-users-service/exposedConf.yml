@@ -1,2 +1,2 @@
 generateSingleFile: false
-packageName: dev.bettercoding.generated
+packageName: com.github.cristianrb.generated
