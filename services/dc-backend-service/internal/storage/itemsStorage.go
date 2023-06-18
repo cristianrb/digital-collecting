@@ -12,6 +12,12 @@ type ItemStorageImpl struct {
 	db *pgx.Conn
 }
 
+func NewItemStorage(db *pgx.Conn) *ItemStorageImpl {
+	return &ItemStorageImpl{
+		db: db,
+	}
+}
+
 func (i *ItemStorageImpl) GetAllItems(offset, limit int) (types.Items, error) {
 	rows, err := i.db.Query(context.Background(), db.GetItemsWithPagination, offset, limit)
 	if err != nil {
@@ -21,12 +27,12 @@ func (i *ItemStorageImpl) GetAllItems(offset, limit int) (types.Items, error) {
 
 	items := types.Items{}
 	for rows.Next() {
-		var item types.Item
-		if err := rows.Scan(&item.Id, &item.Name, &item.Description, &item.Image, &item.Price); err != nil {
+		var item *types.Item
+		if err := mapRowToItem(rows, item); err != nil {
 			return nil, err
 		}
 
-		items = append(items, item)
+		items = append(items, *item)
 	}
 
 	if err := rows.Err(); err != nil {
@@ -36,8 +42,30 @@ func (i *ItemStorageImpl) GetAllItems(offset, limit int) (types.Items, error) {
 	return items, nil
 }
 
-func NewItemStorage(db *pgx.Conn) *ItemStorageImpl {
-	return &ItemStorageImpl{
-		db: db,
+func (i *ItemStorageImpl) GetItemById(id int64) (*types.Item, error) {
+	row := i.db.QueryRow(context.Background(), db.GetItemById, id)
+	var item types.Item
+	err := mapRowToItem(row, &item)
+
+	return &item, err
+}
+
+func (i *ItemStorageImpl) AddItemToUser(itemId, userId int64) error {
+	_, err := i.db.Exec(context.Background(), db.AddItemToUser, userId, itemId)
+	return err
+}
+
+func (i *ItemStorageImpl) CheckUserHasItem(itemId, userId int64) (int, error) {
+	var counter int
+	err := i.db.QueryRow(context.Background(), db.UserHasItem, userId, itemId).Scan(&counter)
+	if err != nil {
+		return -1, err
 	}
+
+	return counter, nil
+}
+
+func mapRowToItem(row pgx.Row, item *types.Item) error {
+	err := row.Scan(&item.Id, &item.Name, &item.Description, &item.Image, &item.Price)
+	return err
 }

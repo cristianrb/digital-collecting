@@ -12,6 +12,7 @@ const val UNKNOWN_ERROR = "Unknown Error"
 
 sealed class AppError(open val msg: String, open val httpErrorCode: Int = 400) {
 
+    data class BadRequestError(val brqMsg: String): AppError(brqMsg, 400)
     data class AuthenticationError(val msg2: String): AppError(msg2, 401)
 
     data class SQLException(val t: Throwable): AppError(t.message ?: UNKNOWN_ERROR, 500)

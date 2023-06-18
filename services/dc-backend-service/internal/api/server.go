@@ -8,7 +8,7 @@ import (
 
 type Server struct {
 	addr    string
-	router *gin.Engine
+	router  *gin.Engine
 	Storage storage.ItemStorage
 }
 
@@ -20,13 +20,14 @@ func New(addr string, storage storage.ItemStorage) *Server {
 
 	server.setupRouter()
 
-	return server 
+	return server
 }
 
 func (s *Server) setupRouter() {
 	router := gin.Default()
 	router.GET("/items", s.getItems)
-	s.router = router	
+	router.POST("/items", s.buyItem)
+	s.router = router
 }
 
 func (s *Server) Run() error {

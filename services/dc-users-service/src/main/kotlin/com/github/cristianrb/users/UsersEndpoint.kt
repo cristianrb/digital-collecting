@@ -47,6 +47,21 @@ fun Route.usersRoutes() {
                     is Either.Right -> call.respond(HttpStatusCode.Accepted, result.value)
                 }
             }
+
+            post("/retrieve") {
+                val user = call.principal<JWTPrincipal>()
+                val coins = call.receive<Coins>()
+                val userId = user?.get("user_id")?.toInt()
+
+                val result = either {
+                    usersService.retrieveCoins(userId?:-1, coins.coins).bind()
+                }
+
+                when (result) {
+                    is Either.Left -> call.clientError(result.value)
+                    is Either.Right -> call.respond(HttpStatusCode.OK, result.value)
+                }
+            }
         }
 
     }

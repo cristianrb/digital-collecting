@@ -39,10 +39,17 @@ data class LoginUser(
 
 @Serializable
 data class User(
+    val id: Int,
     val username: String,
     @Transient
     val password: String? = null,
-    val role: UserRole
+    val role: UserRole,
+    val coins: Int
+)
+
+@Serializable
+data class Coins(
+    val coins: Int,
 )
 
 @Serializable

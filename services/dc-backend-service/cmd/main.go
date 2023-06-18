@@ -22,8 +22,8 @@ func main() {
 	defer conn.Close(context.Background())
 
 	itemStorage := storage.NewItemStorage(conn)
-	
-	server := api.New(":8080", itemStorage)
+
+	server := api.New(":8081", itemStorage)
 	err = server.Run()
 	if err != nil {
 		log.Fatalf("cannot start server: %s", err.Error())

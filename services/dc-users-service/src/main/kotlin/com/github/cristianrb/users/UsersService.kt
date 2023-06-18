@@ -13,6 +13,7 @@ interface UsersService {
     fun addUser(user: RegistrationUser): AppResult<User>
     fun getUserByUsername(username: String): AppResult<User>
     suspend fun authUser(loginUser: LoginUser): AppResult<UserWithToken>
+    fun retrieveCoins(userId: Int, coins: Int): AppResult<User>
 }
 class DefaultUsersService: UsersService, KoinComponent {
 
@@ -40,18 +41,29 @@ class DefaultUsersService: UsersService, KoinComponent {
             val valid = BCrypt.checkpw(loginUser.password, user.password)
 
             return if (valid) {
-                val t = UserWithToken(
+                val user = UserWithToken(
                     user.username,
                     user.role,
                     authService.generateToken(user)
                 )
-                Either.Right(
-                    t
-                )
+                Either.Right(user)
             } else {
                 Either.Left(AppError.AuthenticationError("Invalid auth"))
             }
 
         }
+    }
+
+    override fun retrieveCoins(userId: Int, coins: Int): AppResult<User> {
+        return either {
+            val user = usersRepository.getUserById(userId).bind()
+            return if (user.coins >= coins) {
+                val updatedUser = usersRepository.retrieveCoins(user, user.coins - coins).bind()
+                Either.Right(updatedUser)
+            } else {
+                Either.Left(AppError.BadRequestError("Insufficient coins"))
+            }
+        }
+
     }
 }

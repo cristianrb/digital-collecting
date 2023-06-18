@@ -8,4 +8,24 @@ type Item struct {
 	Price       float64 `json:"price"`
 }
 
+type ItemId struct {
+	Id int64 `json:"id"`
+}
+
 type Items []Item
+
+type Coins struct {
+	Coins float64 `json:"coins"`
+}
+
+type User struct {
+	Id       int64  `json:"id"`
+	Username string `json:"username"`
+	Role     string `json:"role"`
+	Coins    int64  `json:"coins"`
+}
+
+type ApiError struct {
+	Status  string `json:"string"`
+	Message string `json:"message"`
+}
