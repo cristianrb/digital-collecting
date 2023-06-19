@@ -4,6 +4,7 @@ import (
 	"context"
 	"dc-backend/internal/api"
 	"dc-backend/internal/storage"
+	"dc-backend/token"
 	"fmt"
 	"log"
 	"os"
@@ -21,9 +22,11 @@ func main() {
 	}
 	defer conn.Close(context.Background())
 
+	secretKey := "jwt-secret"
+	jwtValidator := token.NewJWTValidator(secretKey)
 	itemStorage := storage.NewItemStorage(conn)
 
-	server := api.New(":8081", itemStorage)
+	server := api.New(":8081", jwtValidator, itemStorage)
 	err = server.Run()
 	if err != nil {
 		log.Fatalf("cannot start server: %s", err.Error())

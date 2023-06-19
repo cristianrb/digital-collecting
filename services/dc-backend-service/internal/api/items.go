@@ -1,10 +1,7 @@
 package api
 
 import (
-	"bytes"
 	"dc-backend/pkg/types"
-	"encoding/json"
-	"errors"
 	"net/http"
 	"strconv"
 
@@ -27,74 +24,68 @@ func (s *Server) getItems(ctx *gin.Context) {
 	println(limit)
 	items, err := s.Storage.GetAllItems(offset, limit)
 	if err != nil {
-		errorResponse(ctx, http.StatusBadRequest, err)
+		errorResponse(ctx, types.ApiError{StatusCode: http.StatusBadRequest, Message: err.Error()})
 		return
 	}
 	ctx.JSON(http.StatusOK, items)
 }
 
 func (s *Server) buyItem(ctx *gin.Context) {
-	itemId := types.ItemId{}
-	err := ctx.ShouldBindJSON(&itemId)
+	accessToken := ctx.Request.Header.Get("Authorization")
+	payload, err := s.JWTToken.VerifyToken(accessToken)
 	if err != nil {
-		errorResponse(ctx, http.StatusBadRequest, err)
+		errorResponse(ctx, types.ApiError{StatusCode: http.StatusUnauthorized, Message: err.Error()})
 		return
 	}
 
-	item, err := s.Storage.GetItemById(itemId.Id)
+	item, apiErr := s.getItemFromDB(ctx, err)
 	if err != nil {
-		errorResponse(ctx, http.StatusBadRequest, err)
+		errorResponse(ctx, *apiErr)
 		return
 	}
 
-	counter, err := s.Storage.CheckUserHasItem(item.Id, 1)
-	if err != nil {
-		errorResponse(ctx, http.StatusBadRequest, err)
+	hasItem := s.checkUserHasItem(item.Id, payload.ID)
+	if hasItem != nil {
+		errorResponse(ctx, *hasItem)
 		return
+	}
+
+	resp, usersErr := s.UsersClient.RetrieveCoins(accessToken, item.Price)
+	if usersErr != nil {
+		errorResponse(ctx, *usersErr)
+		return
+	}
+
+	err = s.Storage.AddItemToUser(item.Id, payload.ID)
+	if err != nil {
+		errorResponse(ctx, types.ApiError{StatusCode: http.StatusBadRequest, Message: err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, resp)
+
+}
+
+func (s *Server) checkUserHasItem(itemId, userId int64) *types.ApiError {
+	counter, err := s.Storage.CheckUserHasItem(itemId, userId)
+	if err != nil {
+		return &types.ApiError{StatusCode: http.StatusBadRequest, Message: err.Error()}
 	}
 	if counter > 0 {
-		errorResponse(ctx, http.StatusBadRequest, errors.New("user already has bought this item"))
-		return
+		return &types.ApiError{StatusCode: http.StatusBadRequest, Message: "user already has bought this item"}
 	}
 
-	accessToken := ctx.Request.Header.Get("Authorization")
+	return nil
+}
 
-	coinsToRetrieve := types.Coins{
-		Coins: item.Price,
-	}
-	body, err := json.Marshal(coinsToRetrieve)
+func (s *Server) getItemFromDB(ctx *gin.Context, err error) (*types.Item, *types.ApiError) {
+	itemId := types.ItemId{}
+	err = ctx.ShouldBindJSON(&itemId)
 	if err != nil {
-		errorResponse(ctx, http.StatusBadRequest, err)
-		return
+		return nil, &types.ApiError{StatusCode: http.StatusBadRequest, Message: err.Error()}
 	}
-	req, _ := http.NewRequest("POST", "http://localhost:8080/users/retrieve", bytes.NewBuffer(body))
-	req.Header.Set("Authorization", accessToken)
-	req.Header.Set("Content-Type", "application/json")
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	defer resp.Body.Close()
+	item, err := s.Storage.GetItemById(itemId.Id)
 	if err != nil {
-		errorResponse(ctx, http.StatusBadRequest, err)
-		return
+		return nil, &types.ApiError{StatusCode: http.StatusBadRequest, Message: err.Error()}
 	}
-
-	if resp.StatusCode >= 200 && resp.StatusCode <= 299 {
-		userResp := types.User{}
-		json.NewDecoder(resp.Body).Decode(&userResp)
-		println(userResp.Id)
-
-		err = s.Storage.AddItemToUser(item.Id, 1)
-		if err != nil {
-			errorResponse(ctx, http.StatusBadRequest, err)
-			return
-		}
-
-		ctx.JSON(http.StatusOK, nil)
-	} else {
-		apiError := types.ApiError{}
-		json.NewDecoder(resp.Body).Decode(&apiError)
-		errorResponse(ctx, resp.StatusCode, errors.New(apiError.Message))
-		return
-	}
-
+	return item, nil
 }

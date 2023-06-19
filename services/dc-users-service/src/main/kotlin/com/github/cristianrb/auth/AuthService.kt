@@ -21,7 +21,7 @@ class DefaultAuthService(
             .withAudience(audience)
             .withIssuer(issuer)
             .withClaim("username", user.username)
-            .withClaim("user_id", user.id.toString())
+            .withClaim("user_id", user.id)
             .withClaim("role", user.role.name)
             .withExpiresAt(Date(System.currentTimeMillis() + 3600000))
             .sign(Algorithm.HMAC256(secret))

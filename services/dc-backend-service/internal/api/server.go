@@ -2,20 +2,26 @@ package api
 
 import (
 	"dc-backend/internal/storage"
+	"dc-backend/pkg/types"
+	"dc-backend/token"
 
 	"github.com/gin-gonic/gin"
 )
 
 type Server struct {
-	addr    string
-	router  *gin.Engine
-	Storage storage.ItemStorage
+	addr        string
+	router      *gin.Engine
+	Storage     storage.ItemStorage
+	UsersClient UsersClient
+	JWTToken    token.JWTValidator
 }
 
-func New(addr string, storage storage.ItemStorage) *Server {
+func New(addr string, jwtValidator token.JWTValidator, storage storage.ItemStorage) *Server {
 	server := &Server{
-		addr:    addr,
-		Storage: storage,
+		addr:        addr,
+		Storage:     storage,
+		UsersClient: NewUsersClient(),
+		JWTToken:    jwtValidator,
 	}
 
 	server.setupRouter()
@@ -34,9 +40,6 @@ func (s *Server) Run() error {
 	return s.router.Run(s.addr)
 }
 
-func errorResponse(ctx *gin.Context, code int, err error) {
-	ctx.JSON(code, gin.H{
-		"code":  code,
-		"error": err.Error(),
-	})
+func errorResponse(ctx *gin.Context, error types.ApiError) {
+	ctx.JSON(error.StatusCode, error)
 }

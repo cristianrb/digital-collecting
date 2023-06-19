@@ -26,6 +26,6 @@ type User struct {
 }
 
 type ApiError struct {
-	Status  string `json:"string"`
-	Message string `json:"message"`
+	StatusCode int    `json:"status"`
+	Message    string `json:"message"`
 }

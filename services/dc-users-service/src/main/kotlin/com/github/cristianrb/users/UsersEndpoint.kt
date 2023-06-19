@@ -15,6 +15,7 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import org.koin.ktor.ext.inject
+dimport javax.print.attribute.IntegerSyntax
 
 fun Route.usersRoutes() {
 
@@ -51,10 +52,10 @@ fun Route.usersRoutes() {
             post("/retrieve") {
                 val user = call.principal<JWTPrincipal>()
                 val coins = call.receive<Coins>()
-                val userId = user?.get("user_id")?.toInt()
+                val userId = user?.getClaim("user_id", Integer::class)?.toInt() ?: -1
 
                 val result = either {
-                    usersService.retrieveCoins(userId?:-1, coins.coins).bind()
+                    usersService.retrieveCoins(userId, coins.coins).bind()
                 }
 
                 when (result) {
