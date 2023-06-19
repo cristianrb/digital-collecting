@@ -15,7 +15,6 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import org.koin.ktor.ext.inject
-dimport javax.print.attribute.IntegerSyntax
 
 fun Route.usersRoutes() {
 
