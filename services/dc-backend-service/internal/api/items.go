@@ -70,6 +70,39 @@ func (s *Server) getCollection(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, items)
 }
 
+func (s *Server) getProfile(ctx *gin.Context) {
+	accessToken := ctx.Request.Header.Get("Authorization")
+	payload, err := s.JWTToken.VerifyToken(accessToken)
+	if err != nil {
+		errorResponse(ctx, types.ApiError{StatusCode: http.StatusUnauthorized, Message: err.Error()})
+		return
+	}
+
+	offset, limit := getOffsetAndLimit(ctx)
+
+	items, err := s.Storage.GetItemsByUserId(payload.ID, offset, limit)
+	if err != nil {
+		errorResponse(ctx, types.ApiError{StatusCode: http.StatusBadRequest, Message: err.Error()})
+		return
+	}
+
+	userInfo, usersErr := s.UsersClient.UserInfo(accessToken)
+	if err != nil {
+		errorResponse(ctx, *usersErr)
+		return
+	}
+
+	userDetails := types.UserDetails{
+		Id:       userInfo.Id,
+		Username: userInfo.Username,
+		Role:     userInfo.Role,
+		Coins:    userInfo.Coins,
+		Items:    items,
+	}
+
+	ctx.JSON(http.StatusOK, userDetails)
+}
+
 func (s *Server) checkUserHasItem(itemId, userId int64) *types.ApiError {
 	counter, err := s.Storage.CheckUserHasItem(itemId, userId)
 	if err != nil {

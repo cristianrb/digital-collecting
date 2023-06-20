@@ -32,6 +32,7 @@ func (s *Server) setupRouter() {
 	router := gin.Default()
 	router.GET("/items", s.getItems)
 	router.GET("/items/:id", s.getCollection)
+	router.GET("/profile", s.getProfile)
 	router.POST("/items", s.buyItem)
 	s.router = router
 }

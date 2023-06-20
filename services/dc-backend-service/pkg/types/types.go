@@ -29,3 +29,11 @@ type ApiError struct {
 	StatusCode int    `json:"status"`
 	Message    string `json:"message"`
 }
+
+type UserDetails struct {
+	Id       int64  `json:"id"`
+	Username string `json:"username"`
+	Role     string `json:"role"`
+	Coins    int64  `json:"coins"`
+	Items    Items  `json:"items"`
+}
