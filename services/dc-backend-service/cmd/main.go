@@ -4,7 +4,7 @@ import (
 	"context"
 	"dc-backend/internal/api"
 	"dc-backend/internal/storage"
-	"dc-backend/token"
+	"dc-backend/internal/token"
 	"fmt"
 	"log"
 	"os"

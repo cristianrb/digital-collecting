@@ -7,4 +7,5 @@ type ItemStorage interface {
 	GetItemById(id int64) (*types.Item, error)
 	AddItemToUser(itemId, userId int64) error
 	CheckUserHasItem(itemId, userId int64) (int, error)
+	GetItemsByUserId(userId int64, offset, limit int) (types.Items, error)
 }

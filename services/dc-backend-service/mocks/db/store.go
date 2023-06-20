@@ -34,6 +34,35 @@ func (m *MockItemStorage) EXPECT() *MockItemStorageMockRecorder {
 	return m.recorder
 }
 
+// AddItemToUser mocks base method.
+func (m *MockItemStorage) AddItemToUser(arg0, arg1 int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddItemToUser", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddItemToUser indicates an expected call of AddItemToUser.
+func (mr *MockItemStorageMockRecorder) AddItemToUser(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddItemToUser", reflect.TypeOf((*MockItemStorage)(nil).AddItemToUser), arg0, arg1)
+}
+
+// CheckUserHasItem mocks base method.
+func (m *MockItemStorage) CheckUserHasItem(arg0, arg1 int64) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CheckUserHasItem", arg0, arg1)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CheckUserHasItem indicates an expected call of CheckUserHasItem.
+func (mr *MockItemStorageMockRecorder) CheckUserHasItem(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckUserHasItem", reflect.TypeOf((*MockItemStorage)(nil).CheckUserHasItem), arg0, arg1)
+}
+
 // GetAllItems mocks base method.
 func (m *MockItemStorage) GetAllItems(arg0, arg1 int) (types.Items, error) {
 	m.ctrl.T.Helper()
@@ -47,4 +76,19 @@ func (m *MockItemStorage) GetAllItems(arg0, arg1 int) (types.Items, error) {
 func (mr *MockItemStorageMockRecorder) GetAllItems(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllItems", reflect.TypeOf((*MockItemStorage)(nil).GetAllItems), arg0, arg1)
+}
+
+// GetItemById mocks base method.
+func (m *MockItemStorage) GetItemById(arg0 int64) (*types.Item, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetItemById", arg0)
+	ret0, _ := ret[0].(*types.Item)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetItemById indicates an expected call of GetItemById.
+func (mr *MockItemStorageMockRecorder) GetItemById(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetItemById", reflect.TypeOf((*MockItemStorage)(nil).GetItemById), arg0)
 }

@@ -65,7 +65,36 @@ func (i *ItemStorageImpl) CheckUserHasItem(itemId, userId int64) (int, error) {
 	return counter, nil
 }
 
+func (i *ItemStorageImpl) GetItemsByUserId(userId int64, offset, limit int) (types.Items, error) {
+	rows, err := i.db.Query(context.Background(), db.GetUserItems, userId, offset, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	items := types.Items{}
+	for rows.Next() {
+		var item types.Item
+		if err := mapRowsToItem(rows, &item); err != nil {
+			return nil, err
+		}
+
+		items = append(items, item)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return items, nil
+}
+
 func mapRowToItem(row pgx.Row, item *types.Item) error {
+	err := row.Scan(&item.Id, &item.Name, &item.Description, &item.Image, &item.Price)
+	return err
+}
+
+func mapRowsToItem(row pgx.Rows, item *types.Item) error {
 	err := row.Scan(&item.Id, &item.Name, &item.Description, &item.Image, &item.Price)
 	return err
 }

@@ -2,6 +2,7 @@ package api
 
 import (
 	mockdb "dc-backend/mocks/db"
+	mocktoken "dc-backend/mocks/token"
 	"dc-backend/pkg/types"
 	"net/http"
 	"net/http/httptest"
@@ -13,11 +14,12 @@ import (
 
 func TestGetAllItems(t *testing.T) {
 	ctrl := gomock.NewController(t)
+	tokenValidator := mocktoken.NewMockJWTValidator(ctrl)
 	storage := mockdb.NewMockItemStorage(ctrl)
-	server := New(":8080", storage)
+	server := New(":8080", tokenValidator, storage)
 	rr := httptest.NewRecorder()
 	req, _ := http.NewRequest(http.MethodGet, "/items", nil)
-	
+
 	items := types.Items{
 		types.Item{
 			Id: 1,

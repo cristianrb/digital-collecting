@@ -2,9 +2,8 @@ package api
 
 import (
 	"dc-backend/internal/storage"
+	"dc-backend/internal/token"
 	"dc-backend/pkg/types"
-	"dc-backend/token"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -32,6 +31,7 @@ func New(addr string, jwtValidator token.JWTValidator, storage storage.ItemStora
 func (s *Server) setupRouter() {
 	router := gin.Default()
 	router.GET("/items", s.getItems)
+	router.GET("/items/:id", s.getCollection)
 	router.POST("/items", s.buyItem)
 	s.router = router
 }

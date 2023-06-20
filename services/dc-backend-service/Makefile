@@ -3,3 +3,4 @@ db_migrate:
 
 mock:
 	mockgen -destination mocks/db/store.go -package mockdb dc-backend/internal/storage ItemStorage
+	mockgen -destination mocks/token/jwt_token.go -package mocktoken dc-backend/internal/token JWTValidator

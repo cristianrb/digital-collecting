@@ -9,19 +9,7 @@ import (
 )
 
 func (s *Server) getItems(ctx *gin.Context) {
-	offsetParam := ctx.Query("offset")
-	limitParam := ctx.Query("limit")
-	offset, err := strconv.Atoi(offsetParam)
-	if err != nil {
-		offset = 0
-	}
-	limit, err := strconv.Atoi(limitParam)
-	if err != nil {
-		limit = 100
-	}
-
-	println(offset)
-	println(limit)
+	offset, limit := getOffsetAndLimit(ctx)
 	items, err := s.Storage.GetAllItems(offset, limit)
 	if err != nil {
 		errorResponse(ctx, types.ApiError{StatusCode: http.StatusBadRequest, Message: err.Error()})
@@ -62,7 +50,24 @@ func (s *Server) buyItem(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, resp)
+}
 
+func (s *Server) getCollection(ctx *gin.Context) {
+	userIdParam := ctx.Param("id")
+	userId, err := strconv.Atoi(userIdParam)
+	if err != nil {
+		errorResponse(ctx, types.ApiError{StatusCode: http.StatusBadRequest, Message: "Invalid user id"})
+		return
+	}
+	offset, limit := getOffsetAndLimit(ctx)
+
+	items, err := s.Storage.GetItemsByUserId(int64(userId), offset, limit)
+	if err != nil {
+		errorResponse(ctx, types.ApiError{StatusCode: http.StatusBadRequest, Message: err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, items)
 }
 
 func (s *Server) checkUserHasItem(itemId, userId int64) *types.ApiError {
@@ -88,4 +93,18 @@ func (s *Server) getItemFromDB(ctx *gin.Context, err error) (*types.Item, *types
 		return nil, &types.ApiError{StatusCode: http.StatusBadRequest, Message: err.Error()}
 	}
 	return item, nil
+}
+
+func getOffsetAndLimit(ctx *gin.Context) (int, int) {
+	offsetParam := ctx.Query("offset")
+	limitParam := ctx.Query("limit")
+	offset, err := strconv.Atoi(offsetParam)
+	if err != nil {
+		offset = 0
+	}
+	limit, err := strconv.Atoi(limitParam)
+	if err != nil {
+		limit = 100
+	}
+	return offset, limit
 }
