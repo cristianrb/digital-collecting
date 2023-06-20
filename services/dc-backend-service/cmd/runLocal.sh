@@ -1,6 +1,5 @@
 #!/bin/sh
 
-export DCUSERSAPIPORT="8080"
 export DCBACKENDAPIPORT="8081"
 
 export PGUSER="dc_admin"
